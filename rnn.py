@@ -50,12 +50,13 @@ dataset = sequences.map(split_input_target)
 #text is considered time series data because each character is interpreted as a single timestep
 #for each timestep, the RNN will try to predict the next timestep
 #an example of desired outcome is shown here
+"""
 for input_example, target_example in  dataset.take(1):
     for i, (input_idx, target_idx) in enumerate(zip(input_example[:5], target_example[:5])):
         print("Step {:4d}".format(i))
         print("  input: {} ({:s})".format(input_idx, repr(idx_to_characters[input_idx])))
         print("  expected output: {} ({:s})".format(target_idx, repr(idx_to_characters[target_idx])))
-
+"""
 #create training batches
 BATCH_SIZE = 64
 #NB tf shuffles the data inside a buffer; that way can handle (possibly) inf. sequences
@@ -88,6 +89,7 @@ model = build_model(vocab_size=vocab_size,
                     batch_size=BATCH_SIZE)
 
 #check that the input is the correct shape
+"""
 for input_example_batch, target_example_batch in dataset.take(1):
     example_batch_predictions = model(input_example_batch)
     print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
@@ -98,7 +100,7 @@ for input_example_batch, target_example_batch in dataset.take(1):
     print("Input: \n", repr("".join(idx_to_characters[input_example_batch[0]])))
     print()
     print("Next Char Predictions: \n", repr("".join(idx_to_characters[sampled_indices ])))
-
+"""
 def loss(labels, logits):
   return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
 
@@ -112,6 +114,55 @@ checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_prefix,
     save_weights_only=True)
 
-EPOCHS = 10
+EPOCHS = 30
 
 history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
+
+tf.train.latest_checkpoint(checkpoint_dir)
+
+model = build_model(vocab_size, embedding_dim, rnn_units, batch_size=1)
+
+model.load_weights(tf.train.latest_checkpoint(checkpoint_dir))
+
+model.build(tf.TensorShape([1, None]))
+
+def generate_text(model, start_string):
+  # Evaluation step (generating text using the learned model)
+
+  # Number of characters to generate
+  num_generate = 1000
+
+  # Converting our start string to numbers (vectorizing)
+  input_eval = [char2idx[s] for s in start_string]
+  input_eval = tf.expand_dims(input_eval, 0)
+
+  # Empty string to store our results
+  text_generated = []
+
+  # Low temperatures results in more predictable text.
+  # Higher temperatures results in more surprising text.
+  # Experiment to find the best setting.
+  temperature = 1.0
+
+  # Here batch size == 1
+  model.reset_states()
+  for i in range(num_generate):
+    predictions = model(input_eval)
+    # remove the batch dimension
+    predictions = tf.squeeze(predictions, 0)
+
+    # using a categorical distribution to predict the character returned by the model
+    predictions = predictions / temperature
+    predicted_id = tf.random.categorical(predictions, num_samples=1)[-1,0].numpy()
+
+    # We pass the predicted character as the next input to the model
+    # along with the previous hidden state
+    input_eval = tf.expand_dims([predicted_id], 0)
+
+    text_generated.append(idx2char[predicted_id])
+
+  return (start_string + ''.join(text_generated))
+
+predicted_text = generate_text(model, start_string=u"[Intro: ")
+with open("predicted_text_16_08_20.txt", 'wb') as f:
+    f.write(predicted_text)
