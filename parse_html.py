@@ -63,7 +63,7 @@ class SongLyrics:
         soup = BeautifulSoup(r.text, features="html.parser")
         main = soup.find("div", class_="lyrics")
         lyrics = main.get_text()
-        lyrics = lyrics.strip("\n") + "\n"
+        lyrics = "\n" + lyrics.strip("\n") + "\n"
         with open("dance_gavin_dance_lyrics.txt", 'a') as f:
             f.write(lyrics)
         return 
