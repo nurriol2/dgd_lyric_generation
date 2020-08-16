@@ -19,6 +19,7 @@ for e, t in enumerate(titles):
             track_df = track_df.drop(e)
 
 track_df = track_df.reset_index()
+#remove uselss columns
 del track_df["level_0"]
 del track_df["index"]
 del track_df["Unnamed: 0"]
