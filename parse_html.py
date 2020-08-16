@@ -1,9 +1,11 @@
 #!/usr/bin/env python3 
 
+import re
+import bs4
+import requests
 import numpy as np
 import pandas as pd
-import re
-import requests
+from bs4 import BeautifulSoup
 
 class SongLyrics:
     
@@ -56,6 +58,15 @@ class SongLyrics:
         title = self.remove_feature(title)
         return title
 
+    def download_lyrics(self):
+        r = requests.get(self.lyrics_url)
+        soup = BeautifulSoup(r.text, features="html.parser")
+        main = soup.find("div", class_="lyrics")
+        lyrics = main.get_text(' ', strip=True)
+
+        return 
+
+
 if __name__=="__main__":
 
     
@@ -68,18 +79,10 @@ if __name__=="__main__":
     #            ]
     
     
-    foo_songs = pd.read_csv("lyrical_tracklist.csv")["Tracks"]
-    #foo_songs = ["Nothing Shameful (feat. Andrew Wells)"]
-    
-    #feature_pattern = re.compile("\(feat\. .*\)")
-    #mo = re.search(feature_pattern, foo_songs[0])
-    #print(str(mo.group()))
+    #foo_songs = pd.read_csv("lyrical_tracklist.csv")["Tracks"]
+    prisoner = SongLyrics("Prisoner")
+    lyrics = prisoner.download_lyrics() 
+    print(lyrics)
 
-
-    for song in foo_songs:
-        bar_obj = SongLyrics(song)
-        #print(bar_obj.lyrics_url)
-        r = requests.get(bar_obj.lyrics_url)
-        if r.status_code != 200:
-            print(bar_obj.lyrics_url)
+        
     
