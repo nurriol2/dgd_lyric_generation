@@ -62,27 +62,16 @@ class SongLyrics:
         r = requests.get(self.lyrics_url)
         soup = BeautifulSoup(r.text, features="html.parser")
         main = soup.find("div", class_="lyrics")
-        lyrics = main.get_text(' ', strip=True)
-
+        lyrics = main.get_text()
+        with open("dance_gavin_dance_lyrics.txt", 'a') as f:
+            f.write(lyrics)
         return 
 
 
 if __name__=="__main__":
 
-    
-    #foo_songs = ["Story Of My Bros - Acoustic", 
-    #            "Tidal Waves: Breakfast, Lunch And Dinner",
-    #            "The Robot vs. Heroin Battle Of Vietnam", 
-    #            "The Robot with Human Hair Pt.2 1/2",
-    #            "The Robot With Human Hair, Pt. 2",
-    #            "Doom & Gloom"
-    #            ]
-    
-    
-    #foo_songs = pd.read_csv("lyrical_tracklist.csv")["Tracks"]
-    prisoner = SongLyrics("Prisoner")
-    lyrics = prisoner.download_lyrics() 
-    print(lyrics)
+    dgd_songs = pd.read_csv("lyrical_tracklist.csv")["Tracks"]
 
-        
-    
+    for title in dgd_songs:
+        lyrics = SongLyrics(title)
+        lyrics.download_lyrics() 
