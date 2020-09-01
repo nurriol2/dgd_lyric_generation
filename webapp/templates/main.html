@@ -25,7 +25,13 @@ form {
 </form>
 <br>
 <div class="result" align="center">
-    <br> Generated Text:
-        <p style="font-size:12px">{{ result }}</p>
+    {% if result %}
+        {% for variable, value in original_input.items() %}
+            <b>{{ variable }}</b> : {{ value }}
+        {% endfor %}
+        <br>
+        <br> Predicted Text:
+           <p style="font-size:12px">{{ result }}</p>
+    {% endif %}
 </div>
 </html>
