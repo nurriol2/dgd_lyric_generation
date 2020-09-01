@@ -6,7 +6,7 @@ from keras.models import load_model
 import requests
 import numpy as np
 
-model = load_model("/Users/nikourriola/Desktop/projects/dgd_lyric_generation/dgd_lyric_gen.h5", compile=False)
+#model = load_model("/Users/nikourriola/Desktop/projects/dgd_lyric_generation/dgd_lyric_gen.h5", compile=False)
 
 #a single .csv containing Dance Gavin Dance lyrics 
 filepath = "https://raw.githubusercontent.com/nurriol2/dgd_lyric_generation/ft-rnn/dance_gavin_dance_lyrics.txt"
